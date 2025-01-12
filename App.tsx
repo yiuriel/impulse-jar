@@ -1,5 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { FontAwesome6 } from "@expo/vector-icons";
 import {
   StyleSheet,
   View,
@@ -13,6 +16,10 @@ import { SavingForm } from "./src/components/SavingForm";
 import { SavingsList } from "./src/components/SavingsList";
 import { SavingsGoal } from "./src/components/SavingsGoal";
 import { useSavings } from "./src/hooks/useSavings";
+import { HomeScreen } from "./src/screens/HomeScreen";
+import { GoalsScreen } from "./src/screens/GoalsScreen";
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   const {
@@ -30,39 +37,50 @@ export default function App() {
   } = useSavings();
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-    >
-      <ScrollView
-        style={styles.mainScrollView}
-        contentContainerStyle={styles.scrollViewContent}
-        keyboardShouldPersistTaps="handled"
+    <NavigationContainer>
+      <StatusBar style="dark" />
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: "#2E7D32",
+          tabBarInactiveTintColor: "#9E9E9E",
+          tabBarStyle: {
+            backgroundColor: "#FFFFFF",
+            borderTopWidth: 1,
+            borderTopColor: "#F5F5F5",
+            paddingBottom: 5,
+            paddingTop: 5,
+          },
+          headerStyle: {
+            backgroundColor: "#FFFFFF",
+          },
+          headerTitleStyle: {
+            color: "#212121",
+            fontSize: 18,
+          },
+        }}
       >
-        <StatusBar style="dark" />
-
-        <JarDisplay totalSaved={totalSaved} goalAmount={savingsGoal?.amount} />
-
-        <SavingsGoal
-          goalAmount={goalAmount}
-          onGoalAmountChange={setGoalAmount}
-          onSetGoal={setGoal}
-          currentAmount={totalSaved}
-          hasGoal={!!savingsGoal}
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome6 name="jar" size={size} color={color} />
+            ),
+            title: "Savings Jar",
+          }}
         />
-
-        <SavingForm
-          description={description}
-          amount={amount}
-          onDescriptionChange={setDescription}
-          onAmountChange={setAmount}
-          onSubmit={addSaving}
+        <Tab.Screen
+          name="Goals"
+          component={GoalsScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome6 name="bullseye" size={size} color={color} />
+            ),
+            title: "Savings Goals",
+          }}
         />
-
-        <SavingsList savings={savings} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 

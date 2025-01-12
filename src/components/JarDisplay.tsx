@@ -42,7 +42,7 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
         />
       </View>
       <View style={styles.savingsContainer}>
-        {/* <Text style={styles.totalAmount}>${totalSaved.toFixed(2)}</Text> */}
+        <Text style={styles.totalAmount}>${totalSaved.toFixed(2)}</Text>
         <Text style={styles.savedText}>Total Savings</Text>
       </View>
     </View>
