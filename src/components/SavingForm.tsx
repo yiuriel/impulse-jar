@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#212121",
+    color: "#cccccc",
     marginBottom: 16,
   },
   input: {

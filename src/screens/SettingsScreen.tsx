@@ -6,11 +6,15 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "../context/ThemeContext";
+import { useSavings } from "../context/SavingsContext";
 
 export const SettingsScreen = () => {
   const { mode, colorScheme, colors, toggleTheme, setColorScheme } = useTheme();
+  const { clearAllData } = useSavings();
 
   const colorSchemes = [
     { name: "green", icon: "leaf" },
@@ -18,6 +22,31 @@ export const SettingsScreen = () => {
     { name: "purple", icon: "gem" },
     { name: "orange", icon: "sun" },
   ] as const;
+
+  const handleClearData = () => {
+    Alert.alert(
+      "Clear All Data",
+      "Are you sure you want to clear all data? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await clearAllData();
+              Alert.alert("Success", "All data has been cleared successfully");
+            } catch (error) {
+              Alert.alert("Error", "Failed to clear data");
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <ScrollView
@@ -75,6 +104,21 @@ export const SettingsScreen = () => {
             />
           </TouchableOpacity>
         ))}
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Data Management
+        </Text>
+        <TouchableOpacity
+          style={[styles.option, { borderColor: colors.border }]}
+          onPress={handleClearData}
+        >
+          <Text style={[styles.optionText, { color: "#ff3b30" }]}>
+            Clear All Data
+          </Text>
+          <FontAwesome6 name="trash-can" size={20} color={"#ff3b30"} />
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );

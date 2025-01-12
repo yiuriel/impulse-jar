@@ -21,11 +21,16 @@ interface SavingsContextType {
   setAmount: (value: string) => void;
   addSaving: () => Promise<void>;
   deleteSaving: (id: string) => Promise<void>;
-  addJar: (name: string, description: string, goalAmount?: number) => Promise<void>;
+  addJar: (
+    name: string,
+    description: string,
+    goalAmount?: number
+  ) => Promise<void>;
   deleteJar: (id: string) => Promise<void>;
   selectJar: (id: string) => void;
   updateJarGoal: (jarId: string, goalAmount: number) => Promise<void>;
   updateJar: (jarId: string, updates: Partial<SavingsJar>) => Promise<void>;
+  clearAllData: () => Promise<void>;
 }
 
 const SavingsContext = createContext<SavingsContextType | undefined>(undefined);
@@ -60,11 +65,15 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const selectedJar = selectedJarId 
-    ? jars.find(jar => jar.id === selectedJarId) || null 
+  const selectedJar = selectedJarId
+    ? jars.find((jar) => jar.id === selectedJarId) || null
     : null;
 
-  const addJar = async (name: string, description: string, goalAmount?: number) => {
+  const addJar = async (
+    name: string,
+    description: string,
+    goalAmount?: number
+  ) => {
     if (!name) {
       Alert.alert("Error", "Please provide a name for the jar");
       return;
@@ -93,7 +102,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const deleteJar = async (id: string) => {
-    const updatedJars = jars.filter(jar => jar.id !== id);
+    const updatedJars = jars.filter((jar) => jar.id !== id);
     try {
       await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
       setJars(updatedJars);
@@ -106,10 +115,8 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const updateJarGoal = async (jarId: string, goalAmount: number) => {
-    const updatedJars = jars.map(jar => 
-      jar.id === jarId 
-        ? { ...jar, goalAmount } 
-        : jar
+    const updatedJars = jars.map((jar) =>
+      jar.id === jarId ? { ...jar, goalAmount } : jar
     );
 
     try {
@@ -121,7 +128,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const updateJar = async (jarId: string, updates: Partial<SavingsJar>) => {
-    const jarIndex = jars.findIndex(jar => jar.id === jarId);
+    const jarIndex = jars.findIndex((jar) => jar.id === jarId);
     if (jarIndex === -1) {
       Alert.alert("Error", "Jar not found");
       return;
@@ -177,7 +184,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
       totalSaved: selectedJar.totalSaved + numAmount,
     };
 
-    const updatedJars = jars.map(jar => 
+    const updatedJars = jars.map((jar) =>
       jar.id === selectedJar.id ? updatedJar : jar
     );
 
@@ -194,16 +201,16 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
   const deleteSaving = async (savingId: string) => {
     if (!selectedJar) return;
 
-    const savingToDelete = selectedJar.savings.find(s => s.id === savingId);
+    const savingToDelete = selectedJar.savings.find((s) => s.id === savingId);
     if (!savingToDelete) return;
 
     const updatedJar = {
       ...selectedJar,
-      savings: selectedJar.savings.filter(s => s.id !== savingId),
+      savings: selectedJar.savings.filter((s) => s.id !== savingId),
       totalSaved: selectedJar.totalSaved - savingToDelete.amount,
     };
 
-    const updatedJars = jars.map(jar => 
+    const updatedJars = jars.map((jar) =>
       jar.id === selectedJar.id ? updatedJar : jar
     );
 
@@ -212,6 +219,19 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
       setJars(updatedJars);
     } catch (error) {
       Alert.alert("Error", "Failed to delete saving");
+    }
+  };
+
+  const clearAllData = async () => {
+    try {
+      await AsyncStorage.clear();
+      setJars([]);
+      setSelectedJarId(null);
+      setDescription("");
+      setAmount("");
+    } catch (error) {
+      Alert.alert("Error", "Failed to clear data");
+      throw error;
     }
   };
 
@@ -232,6 +252,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
         selectJar,
         updateJarGoal,
         updateJar,
+        clearAllData,
       }}
     >
       {children}
