@@ -108,7 +108,8 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
             placeholderTextColor={colors.textSecondary}
             value={goalAmount}
             onChangeText={onGoalAmountChange}
-            keyboardType="decimal-pad"
+            keyboardType="numeric"
+            inputMode="numeric"
           />
           <TouchableOpacity
             style={[styles.button, { backgroundColor: colors.primary }]}

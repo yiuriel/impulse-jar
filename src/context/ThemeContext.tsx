@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 type ThemeMode = "light" | "dark";
-type ColorScheme = "green" | "blue" | "purple" | "orange";
+type ColorScheme = "green" | "blue" | "purple" | "orange" | "pink" | "red" | "teal" | "indigo";
 
 interface ThemeColors {
   primary: string;
@@ -51,6 +51,42 @@ const themeColorSchemes: Record<ColorScheme, ThemeColors> = {
   orange: {
     primary: "#F57C00",
     secondary: "#FF9800",
+    background: "#F5F5F5",
+    card: "#FFFFFF",
+    text: "#212121",
+    textSecondary: "#757575",
+    border: "#E0E0E0",
+  },
+  pink: {
+    primary: "#C2185B",
+    secondary: "#E91E63",
+    background: "#F5F5F5",
+    card: "#FFFFFF",
+    text: "#212121",
+    textSecondary: "#757575",
+    border: "#E0E0E0",
+  },
+  red: {
+    primary: "#D32F2F",
+    secondary: "#F44336",
+    background: "#F5F5F5",
+    card: "#FFFFFF",
+    text: "#212121",
+    textSecondary: "#757575",
+    border: "#E0E0E0",
+  },
+  teal: {
+    primary: "#00796B",
+    secondary: "#009688",
+    background: "#F5F5F5",
+    card: "#FFFFFF",
+    text: "#212121",
+    textSecondary: "#757575",
+    border: "#E0E0E0",
+  },
+  indigo: {
+    primary: "#303F9F",
+    secondary: "#3F51B5",
     background: "#F5F5F5",
     card: "#FFFFFF",
     text: "#212121",

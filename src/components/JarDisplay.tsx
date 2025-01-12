@@ -110,8 +110,8 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
                 height: getJarFillHeight(),
                 backgroundColor: colors.primary,
                 opacity: Math.min(
-                  Math.max(0.1 + (totalSaved / goalAmount) * 0.4, 0.1),
-                  0.5
+                  Math.max(0.25 + (totalSaved / goalAmount) * 0.7, 0.25),
+                  0.7
                 ),
               },
             ]}
@@ -123,14 +123,23 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
       </View>
 
       <View style={styles.infoContainer}>
-        <Text style={[styles.amount, { color: colors.primary }]}>
-          ${totalSaved.toFixed(2)}
-        </Text>
-        {goalAmount > 0 && (
-          <Text style={[styles.goalAmount, { color: colors.textSecondary }]}>
-            / ${goalAmount.toFixed(2)}
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <Text style={[styles.amount, { color: colors.primary }]}>
+            ${totalSaved.toFixed(2)}
           </Text>
-        )}
+          {goalAmount > 0 && (
+            <Text style={[styles.goalAmount, { color: colors.textSecondary }]}>
+              / ${goalAmount.toFixed(2)}
+            </Text>
+          )}
+        </View>
         <Text style={[styles.progressText, { color: colors.textSecondary }]}>
           {goalAmount > 0 ? `${Math.floor(progress)}% of goal` : "No goal set"}
         </Text>
@@ -266,8 +275,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   goalAmount: {
-    fontSize: 20,
-    marginLeft: 4,
+    fontSize: 30,
   },
   progressText: {
     fontSize: 14,

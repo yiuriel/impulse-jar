@@ -62,7 +62,8 @@ export const SavingForm: React.FC<SavingFormProps> = ({
         placeholderTextColor={colors.textSecondary}
         value={amount}
         onChangeText={onAmountChange}
-        keyboardType="decimal-pad"
+        keyboardType="numeric"
+        inputMode="numeric"
       />
       <TouchableOpacity
         style={[styles.button, { backgroundColor: colors.primary }]}

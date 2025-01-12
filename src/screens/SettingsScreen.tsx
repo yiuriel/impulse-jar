@@ -21,6 +21,10 @@ export const SettingsScreen = () => {
     { name: "blue", icon: "water" },
     { name: "purple", icon: "gem" },
     { name: "orange", icon: "sun" },
+    { name: "pink", icon: "heart" },
+    { name: "red", icon: "fire" },
+    { name: "teal", icon: "droplet" },
+    { name: "indigo", icon: "moon" },
   ] as const;
 
   const handleClearData = () => {

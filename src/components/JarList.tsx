@@ -155,6 +155,7 @@ export const JarList = () => {
               value={newJarGoal}
               onChangeText={setNewJarGoal}
               keyboardType="numeric"
+              inputMode="numeric"
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -164,7 +165,10 @@ export const JarList = () => {
                 <Text style={{ color: colors.text }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: colors.primary }]}
+                style={[
+                  styles.modalButton,
+                  { backgroundColor: colors.primary },
+                ]}
                 onPress={handleAddJar}
               >
                 <Text style={{ color: "white" }}>Create</Text>
@@ -205,7 +209,10 @@ export const JarList = () => {
                 <Text style={{ color: colors.text }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: colors.primary }]}
+                style={[
+                  styles.modalButton,
+                  { backgroundColor: colors.primary },
+                ]}
                 onPress={handleSaveGoal}
               >
                 <Text style={{ color: "white" }}>Save</Text>

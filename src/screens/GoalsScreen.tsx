@@ -142,7 +142,8 @@ export const GoalsScreen = () => {
               placeholderTextColor={colors.textSecondary}
               value={goalAmount}
               onChangeText={setGoalAmount}
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
+              inputMode="numeric"
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
