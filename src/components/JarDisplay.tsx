@@ -1,12 +1,21 @@
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Alert,
+} from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
-import React from "react";
-import { DimensionValue, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { useSavings } from "../context/SavingsContext";
 import { styles as sharedStyles } from "../styles/shared";
 
 interface JarDisplayProps {
   totalSaved: number;
-  goalAmount?: number;
+  goalAmount: number;
   progress: number;
 }
 
@@ -16,12 +25,46 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
   progress,
 }) => {
   const { colors } = useTheme();
+  const { selectedJar, updateJar } = useSavings();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(selectedJar?.name || "");
+  const [editDescription, setEditDescription] = useState(selectedJar?.description || "");
+  const [editGoalAmount, setEditGoalAmount] = useState(goalAmount ? goalAmount.toString() : "");
 
-  const getJarFillHeight = (): DimensionValue => {
-    if (!goalAmount) return "30%";
-    const percentage = Math.min((totalSaved / goalAmount) * 100, 100);
-    return `${Math.max(percentage, 5)}%`;
+  const handleEditPress = () => {
+    setEditName(selectedJar?.name || "");
+    setEditDescription(selectedJar?.description || "");
+    setEditGoalAmount(goalAmount ? goalAmount.toString() : "");
+    setIsEditing(true);
   };
+
+  const handleSave = async () => {
+    if (!selectedJar) return;
+
+    if (!editName.trim()) {
+      Alert.alert("Error", "Name is required");
+      return;
+    }
+
+    const updates: any = {
+      name: editName.trim(),
+      description: editDescription.trim(),
+    };
+
+    if (editGoalAmount) {
+      const parsedGoal = parseFloat(editGoalAmount);
+      if (isNaN(parsedGoal) || parsedGoal <= 0) {
+        Alert.alert("Error", "Please enter a valid goal amount");
+        return;
+      }
+      updates.goalAmount = parsedGoal;
+    }
+
+    await updateJar(selectedJar.id, updates);
+    setIsEditing(false);
+  };
+
+  if (!selectedJar) return null;
 
   return (
     <View
@@ -31,40 +74,118 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
         { backgroundColor: colors.card },
       ]}
     >
-      <View style={styles.jarContainer}>
-        <View style={[styles.jar, { borderColor: colors.primary }]}>
-          <View
-            style={[
-              styles.jarFill,
-              {
-                height: getJarFillHeight(),
-                backgroundColor: colors.primary,
-                opacity: 0.3,
-              },
-            ]}
-          />
+      <View style={styles.header}>
+        <View>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {selectedJar.name}
+          </Text>
+          {selectedJar.description && (
+            <Text
+              style={[styles.description, { color: colors.textSecondary }]}
+            >
+              {selectedJar.description}
+            </Text>
+          )}
         </View>
-        <View style={styles.iconContainer}>
-          <FontAwesome6 name="jar" size={100} color={colors.primary} />
-        </View>
+        <TouchableOpacity onPress={handleEditPress} style={styles.editButton}>
+          <FontAwesome6 name="pencil" size={16} color={colors.primary} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.infoContainer}>
-        <Text style={[styles.amount, { color: colors.text }]}>
+
+      <View style={styles.amountContainer}>
+        <Text style={[styles.amount, { color: colors.primary }]}>
           ${totalSaved.toFixed(2)}
         </Text>
-        <Text style={[styles.label, { color: colors.textSecondary }]}>
-          Total Saved
-        </Text>
-        {goalAmount ? (
-          <Text style={[styles.goal, { color: colors.textSecondary }]}>
-            Goal: ${goalAmount.toFixed(2)} ({progress.toFixed(1)}%)
-          </Text>
-        ) : (
-          <Text style={[styles.goal, { color: colors.textSecondary }]}>
-            No goal set yet
+        {goalAmount > 0 && (
+          <Text style={[styles.goalAmount, { color: colors.textSecondary }]}>
+            / ${goalAmount.toFixed(2)}
           </Text>
         )}
       </View>
+
+      {goalAmount > 0 && (
+        <View style={styles.progressContainer}>
+          <View
+            style={[styles.progressBar, { backgroundColor: colors.border }]}
+          >
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${Math.min(progress, 100)}%`,
+                  backgroundColor: colors.primary,
+                },
+              ]}
+            />
+          </View>
+          <Text
+            style={[styles.progressText, { color: colors.textSecondary }]}
+          >
+            {Math.floor(progress)}% of goal
+          </Text>
+        </View>
+      )}
+
+      <Modal
+        visible={isEditing}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsEditing(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Edit Jar Details
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                { backgroundColor: colors.background, color: colors.text },
+              ]}
+              placeholder="Name"
+              placeholderTextColor={colors.textSecondary}
+              value={editName}
+              onChangeText={setEditName}
+            />
+            <TextInput
+              style={[
+                styles.input,
+                { backgroundColor: colors.background, color: colors.text },
+              ]}
+              placeholder="Description (optional)"
+              placeholderTextColor={colors.textSecondary}
+              value={editDescription}
+              onChangeText={setEditDescription}
+              multiline
+            />
+            <TextInput
+              style={[
+                styles.input,
+                { backgroundColor: colors.background, color: colors.text },
+              ]}
+              placeholder="Goal Amount (optional)"
+              placeholderTextColor={colors.textSecondary}
+              value={editGoalAmount}
+              onChangeText={setEditGoalAmount}
+              keyboardType="decimal-pad"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: colors.border }]}
+                onPress={() => setIsEditing(false)}
+              >
+                <Text style={{ color: colors.text }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
+                onPress={handleSave}
+              >
+                <Text style={{ color: "white" }}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -73,56 +194,89 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     marginBottom: 24,
-    alignItems: "center",
   },
-  jarContainer: {
-    width: 120,
-    height: 120,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 16,
-    overflow: "hidden",
-    position: "relative",
-    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 14,
+  },
+  editButton: {
+    padding: 8,
+  },
+  amountContainer: {
+    flexDirection: "row",
+    alignItems: "baseline",
     justifyContent: "center",
-    borderRadius: "100%",
-  },
-  jar: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    borderWidth: 3,
-    borderRadius: "100%",
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  jarFill: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-  },
-  iconContainer: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1,
-  },
-  infoContainer: {
-    alignItems: "center",
+    marginBottom: 16,
   },
   amount: {
     fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 4,
+    fontWeight: "700",
   },
-  label: {
-    fontSize: 16,
+  goalAmount: {
+    fontSize: 20,
+    marginLeft: 4,
+  },
+  progressContainer: {
+    marginTop: 8,
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
     marginBottom: 8,
+    overflow: "hidden",
   },
-  goal: {
+  progressFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  progressText: {
     fontSize: 14,
+    textAlign: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  input: {
+    height: 40,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

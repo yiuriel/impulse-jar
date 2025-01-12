@@ -13,6 +13,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useSavings } from "../context/SavingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { SavingsJar } from "../types";
+import { JarListItem } from "./JarListItem";
 
 export const JarList = () => {
   const { colors } = useTheme();
@@ -79,68 +80,14 @@ export const JarList = () => {
     setGoalAmount("");
   };
 
-  const getProgress = (jar: SavingsJar) => {
-    if (!jar.goalAmount) return 0;
-    return (jar.totalSaved / jar.goalAmount) * 100;
-  };
-
   const renderJarItem = ({ item }: { item: SavingsJar }) => (
-    <TouchableOpacity
-      style={[
-        styles.jarItem,
-        {
-          backgroundColor: colors.card,
-          borderColor:
-            item.id === selectedJarId ? colors.primary : colors.border,
-        },
-      ]}
-      onPress={() => selectJar(item.id)}
-    >
-      <View style={styles.jarItemContent}>
-        <View style={styles.jarInfo}>
-          <Text style={[styles.jarName, { color: colors.text }]}>
-            {item.name}
-          </Text>
-          <Text
-            style={[styles.jarDescription, { color: colors.textSecondary }]}
-          >
-            {item.description}
-          </Text>
-          <Text style={[styles.jarAmount, { color: colors.primary }]}>
-            ${item.totalSaved.toFixed(2)}
-          </Text>
-          {item.goalAmount && (
-            <View
-              style={[styles.progressBar, { backgroundColor: colors.border }]}
-            >
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${Math.min(getProgress(item), 100)}%`,
-                    backgroundColor: colors.primary,
-                  },
-                ]}
-              />
-            </View>
-          )}
-        </View>
-        <View style={styles.jarActions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleEditGoal(item)}
-          >
-            <FontAwesome6 name="bullseye" size={16} color={colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => handleDeleteJar(item.id)}
-          >
-            <FontAwesome6 name="trash" size={16} color="red" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <JarListItem
+      jar={item}
+      isSelected={item.id === selectedJarId}
+      onSelect={selectJar}
+      onEditGoal={handleEditGoal}
+      onDelete={handleDeleteJar}
+    />
   );
 
   return (
@@ -207,25 +154,17 @@ export const JarList = () => {
               placeholderTextColor={colors.textSecondary}
               value={newJarGoal}
               onChangeText={setNewJarGoal}
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: colors.border }]}
-                onPress={() => {
-                  setIsModalVisible(false);
-                  setNewJarName("");
-                  setNewJarDescription("");
-                  setNewJarGoal("");
-                }}
+                onPress={() => setIsModalVisible(false)}
               >
                 <Text style={{ color: colors.text }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.modalButton,
-                  { backgroundColor: colors.primary },
-                ]}
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
                 onPress={handleAddJar}
               >
                 <Text style={{ color: "white" }}>Create</Text>
@@ -245,7 +184,7 @@ export const JarList = () => {
         <View style={styles.modalContainer}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Set Goal for {editingJar?.name}
+              Edit Goal Amount
             </Text>
             <TextInput
               style={[
@@ -256,7 +195,7 @@ export const JarList = () => {
               placeholderTextColor={colors.textSecondary}
               value={goalAmount}
               onChangeText={setGoalAmount}
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -266,13 +205,10 @@ export const JarList = () => {
                 <Text style={{ color: colors.text }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.modalButton,
-                  { backgroundColor: colors.primary },
-                ]}
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
                 onPress={handleSaveGoal}
               >
-                <Text style={{ color: "white" }}>Save Goal</Text>
+                <Text style={{ color: "white" }}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -306,49 +242,6 @@ const styles = StyleSheet.create({
   jarList: {
     paddingRight: 16,
   },
-  jarItem: {
-    width: 200,
-    marginRight: 12,
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 2,
-  },
-  jarItemContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  jarInfo: {
-    flex: 1,
-  },
-  jarName: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  jarDescription: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  jarAmount: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: 4,
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 2,
-  },
-  jarActions: {
-    justifyContent: "space-between",
-  },
-  actionButton: {
-    padding: 8,
-  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -376,6 +269,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 16,
+    gap: 12,
   },
   modalButton: {
     flex: 1,
@@ -383,6 +277,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 6,
   },
 });

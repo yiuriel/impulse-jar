@@ -25,6 +25,7 @@ interface SavingsContextType {
   deleteJar: (id: string) => Promise<void>;
   selectJar: (id: string) => void;
   updateJarGoal: (jarId: string, goalAmount: number) => Promise<void>;
+  updateJar: (jarId: string, updates: Partial<SavingsJar>) => Promise<void>;
 }
 
 const SavingsContext = createContext<SavingsContextType | undefined>(undefined);
@@ -119,6 +120,29 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const updateJar = async (jarId: string, updates: Partial<SavingsJar>) => {
+    const jarIndex = jars.findIndex(jar => jar.id === jarId);
+    if (jarIndex === -1) {
+      Alert.alert("Error", "Jar not found");
+      return;
+    }
+
+    const updatedJar = {
+      ...jars[jarIndex],
+      ...updates,
+    };
+
+    const updatedJars = [...jars];
+    updatedJars[jarIndex] = updatedJar;
+
+    try {
+      await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
+      setJars(updatedJars);
+    } catch (error) {
+      Alert.alert("Error", "Failed to update jar");
+    }
+  };
+
   const selectJar = (id: string) => {
     setSelectedJarId(id);
   };
@@ -207,6 +231,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
         deleteJar,
         selectJar,
         updateJarGoal,
+        updateJar,
       }}
     >
       {children}

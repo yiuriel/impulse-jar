@@ -12,8 +12,12 @@ import { styles as sharedStyles } from "../styles/shared";
 
 interface SavingsGoalProps {
   goalAmount: string;
+  name: string;
+  description: string;
   onGoalAmountChange: (text: string) => void;
-  onSetGoal: () => void;
+  onNameChange: (text: string) => void;
+  onDescriptionChange: (text: string) => void;
+  onSave: () => void;
   currentAmount: number;
   hasGoal: boolean;
   progress: number;
@@ -21,8 +25,12 @@ interface SavingsGoalProps {
 
 export const SavingsGoal: React.FC<SavingsGoalProps> = ({
   goalAmount,
+  name,
+  description,
   onGoalAmountChange,
-  onSetGoal,
+  onNameChange,
+  onDescriptionChange,
+  onSave,
   currentAmount,
   hasGoal,
   progress,
@@ -36,7 +44,7 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
 
   const handleSavePress = () => {
     setIsEditing(false);
-    onSetGoal();
+    onSave();
   };
 
   return (
@@ -67,6 +75,35 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
                 borderColor: colors.border,
               },
             ]}
+            placeholder="Name"
+            placeholderTextColor={colors.textSecondary}
+            value={name}
+            onChangeText={onNameChange}
+          />
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+              },
+            ]}
+            placeholder="Description"
+            placeholderTextColor={colors.textSecondary}
+            value={description}
+            onChangeText={onDescriptionChange}
+            multiline
+          />
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+              },
+            ]}
             placeholder="Enter your savings goal"
             placeholderTextColor={colors.textSecondary}
             value={goalAmount}
@@ -79,33 +116,35 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
             onPress={handleSavePress}
           >
             <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
-              {hasGoal ? "Update Goal" : "Set Goal"}
+              {hasGoal ? "Update" : "Set Goal"}
             </Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.progressContainer}>
-          <View
-            style={[styles.progressBar, { backgroundColor: colors.border }]}
-          >
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${Math.floor(progress)}%`,
-                  backgroundColor: colors.primary,
-                },
-              ]}
-            />
+        <View>
+          <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
+            {description}
+          </Text>
+          <View style={styles.progressContainer}>
+            <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${Math.floor(progress)}%`,
+                    backgroundColor: colors.primary,
+                  },
+                ]}
+              />
+            </View>
+            <Text style={[styles.progressText, { color: colors.text }]}>
+              ${currentAmount.toFixed(2)} / ${parseFloat(goalAmount).toFixed(2)}
+            </Text>
+            <Text style={[styles.progressPercentage, { color: colors.text }]}>
+              {Math.floor(progress)}%
+            </Text>
           </View>
-          <Text style={[styles.progressText, { color: colors.text }]}>
-            ${currentAmount.toFixed(2)} of ${parseFloat(goalAmount).toFixed(2)}
-          </Text>
-          <Text
-            style={[styles.progressPercentage, { color: colors.textSecondary }]}
-          >
-            {progress.toFixed(1)}% Complete
-          </Text>
         </View>
       )}
     </View>
@@ -130,16 +169,24 @@ const styles = StyleSheet.create({
   editButton: {
     padding: 8,
   },
+  name: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 14,
+    marginBottom: 16,
+  },
   input: {
-    height: 48,
+    height: 40,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 16,
-    fontSize: 16,
+    marginBottom: 12,
   },
   button: {
-    height: 48,
+    height: 40,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
@@ -154,7 +201,7 @@ const styles = StyleSheet.create({
   progressBar: {
     height: 8,
     borderRadius: 4,
-    marginBottom: 12,
+    marginBottom: 8,
     overflow: "hidden",
   },
   progressFill: {
@@ -162,11 +209,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   progressText: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
+    textAlign: "center",
   },
   progressPercentage: {
     fontSize: 14,
+    textAlign: "center",
   },
 });
