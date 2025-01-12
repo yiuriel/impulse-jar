@@ -55,9 +55,13 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
         <Text style={[styles.label, { color: colors.textSecondary }]}>
           Total Saved
         </Text>
-        {goalAmount && (
+        {goalAmount ? (
           <Text style={[styles.goal, { color: colors.textSecondary }]}>
             Goal: ${goalAmount.toFixed(2)} ({progress.toFixed(1)}%)
+          </Text>
+        ) : (
+          <Text style={[styles.goal, { color: colors.textSecondary }]}>
+            No goal set yet
           </Text>
         )}
       </View>

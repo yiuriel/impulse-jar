@@ -7,25 +7,24 @@ import React, {
   useState,
 } from "react";
 import { Alert } from "react-native";
-import { SavingItem, SavingsGoal } from "../types";
+import { SavingItem, SavingsJar } from "../types";
 
-const SAVINGS_KEY = "@savings";
-const GOAL_KEY = "@savings_goal";
+const JARS_KEY = "@savings_jars";
 
 interface SavingsContextType {
+  jars: SavingsJar[];
+  selectedJarId: string | null;
+  selectedJar: SavingsJar | null;
   description: string;
   setDescription: (value: string) => void;
   amount: string;
   setAmount: (value: string) => void;
-  savings: SavingItem[];
-  totalSaved: number;
   addSaving: () => Promise<void>;
   deleteSaving: (id: string) => Promise<void>;
-  goalAmount: string;
-  setGoalAmount: (value: string) => void;
-  savingsGoal: SavingsGoal | null;
-  setGoal: () => Promise<void>;
-  progress: number;
+  addJar: (name: string, description: string, goalAmount?: number) => Promise<void>;
+  deleteJar: (id: string) => Promise<void>;
+  selectJar: (id: string) => void;
+  updateJarGoal: (jarId: string, goalAmount: number) => Promise<void>;
 }
 
 const SavingsContext = createContext<SavingsContextType | undefined>(undefined);
@@ -35,50 +34,101 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [savings, setSavings] = useState<SavingItem[]>([]);
-  const [goalAmount, setGoalAmount] = useState("");
-  const [savingsGoal, setSavingsGoal] = useState<SavingsGoal | null>(null);
-  const [totalSaved, setTotalSaved] = useState(0);
+  const [jars, setJars] = useState<SavingsJar[]>([]);
+  const [selectedJarId, setSelectedJarId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadSavings();
-    loadGoal();
+    loadJars();
   }, []);
 
-  const loadSavings = async () => {
+  useEffect(() => {
+    if (jars.length > 0 && !selectedJarId) {
+      setSelectedJarId(jars[0].id);
+    }
+  }, [jars]);
+
+  const loadJars = async () => {
     try {
-      const savedSavings = await AsyncStorage.getItem(SAVINGS_KEY);
-      if (savedSavings) {
-        const parsedData = JSON.parse(savedSavings);
-        setSavings(parsedData);
-        calculateTotal(parsedData);
+      const savedJars = await AsyncStorage.getItem(JARS_KEY);
+      if (savedJars) {
+        const parsedJars = JSON.parse(savedJars);
+        setJars(parsedJars);
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to load savings");
+      Alert.alert("Error", "Failed to load savings jars");
     }
   };
 
-  const loadGoal = async () => {
+  const selectedJar = selectedJarId 
+    ? jars.find(jar => jar.id === selectedJarId) || null 
+    : null;
+
+  const addJar = async (name: string, description: string, goalAmount?: number) => {
+    if (!name) {
+      Alert.alert("Error", "Please provide a name for the jar");
+      return;
+    }
+
+    const newJar: SavingsJar = {
+      id: Date.now().toString(),
+      name,
+      description,
+      goalAmount: goalAmount || null,
+      savings: [],
+      totalSaved: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedJars = [...jars, newJar];
     try {
-      const savedGoal = await AsyncStorage.getItem(GOAL_KEY);
-      if (savedGoal) {
-        const parsedGoal = JSON.parse(savedGoal);
-        setSavingsGoal(parsedGoal);
-        setGoalAmount(parsedGoal.amount.toString());
+      await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
+      setJars(updatedJars);
+      if (!selectedJarId) {
+        setSelectedJarId(newJar.id);
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to load savings goal");
+      Alert.alert("Error", "Failed to create new jar");
     }
   };
 
-  const calculateTotal = (items: SavingItem[]) => {
-    const total = items.reduce((sum, item) => sum + item.amount, 0);
-    setTotalSaved(total);
+  const deleteJar = async (id: string) => {
+    const updatedJars = jars.filter(jar => jar.id !== id);
+    try {
+      await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
+      setJars(updatedJars);
+      if (selectedJarId === id) {
+        setSelectedJarId(updatedJars[0]?.id || null);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete jar");
+    }
   };
 
-  const progress = savingsGoal ? (totalSaved / savingsGoal.amount) * 100 : 0;
+  const updateJarGoal = async (jarId: string, goalAmount: number) => {
+    const updatedJars = jars.map(jar => 
+      jar.id === jarId 
+        ? { ...jar, goalAmount } 
+        : jar
+    );
+
+    try {
+      await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
+      setJars(updatedJars);
+    } catch (error) {
+      Alert.alert("Error", "Failed to update jar goal");
+    }
+  };
+
+  const selectJar = (id: string) => {
+    setSelectedJarId(id);
+  };
 
   const addSaving = async () => {
+    if (!selectedJar) {
+      Alert.alert("Error", "Please select a jar first");
+      return;
+    }
+
     if (!description || !amount) {
       Alert.alert("Error", "Please fill in both fields");
       return;
@@ -97,11 +147,19 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
       date: new Date().toISOString(),
     };
 
-    const updatedSavings = [...savings, newItem];
+    const updatedJar = {
+      ...selectedJar,
+      savings: [...selectedJar.savings, newItem],
+      totalSaved: selectedJar.totalSaved + numAmount,
+    };
+
+    const updatedJars = jars.map(jar => 
+      jar.id === selectedJar.id ? updatedJar : jar
+    );
+
     try {
-      await AsyncStorage.setItem(SAVINGS_KEY, JSON.stringify(updatedSavings));
-      setSavings(updatedSavings);
-      calculateTotal(updatedSavings);
+      await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
+      setJars(updatedJars);
       setDescription("");
       setAmount("");
     } catch (error) {
@@ -109,61 +167,50 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const deleteSaving = async (id: string) => {
-    try {
-      const updatedSavings = savings.filter((item) => item.id !== id);
-      await AsyncStorage.setItem(SAVINGS_KEY, JSON.stringify(updatedSavings));
-      setSavings(updatedSavings);
-      calculateTotal(updatedSavings);
-      Alert.alert("Success", "Item deleted successfully");
-    } catch (error) {
-      Alert.alert("Error", "Failed to delete item");
-    }
-  };
+  const deleteSaving = async (savingId: string) => {
+    if (!selectedJar) return;
 
-  const setGoal = async () => {
-    if (!goalAmount) {
-      Alert.alert("Error", "Please enter a goal amount");
-      return;
-    }
+    const savingToDelete = selectedJar.savings.find(s => s.id === savingId);
+    if (!savingToDelete) return;
 
-    const numGoal = parseFloat(goalAmount);
-    if (isNaN(numGoal) || numGoal <= 0) {
-      Alert.alert("Error", "Please enter a valid goal amount");
-      return;
-    }
-
-    const goal: SavingsGoal = {
-      amount: numGoal,
-      date: new Date().toISOString(),
+    const updatedJar = {
+      ...selectedJar,
+      savings: selectedJar.savings.filter(s => s.id !== savingId),
+      totalSaved: selectedJar.totalSaved - savingToDelete.amount,
     };
 
-    try {
-      await AsyncStorage.setItem(GOAL_KEY, JSON.stringify(goal));
-      setSavingsGoal(goal);
-    } catch (error) {
-      Alert.alert("Error", "Failed to save goal");
-    }
-  };
+    const updatedJars = jars.map(jar => 
+      jar.id === selectedJar.id ? updatedJar : jar
+    );
 
-  const value = {
-    description,
-    setDescription,
-    amount,
-    setAmount,
-    savings,
-    totalSaved,
-    addSaving,
-    deleteSaving,
-    goalAmount,
-    setGoalAmount,
-    savingsGoal,
-    setGoal,
-    progress,
+    try {
+      await AsyncStorage.setItem(JARS_KEY, JSON.stringify(updatedJars));
+      setJars(updatedJars);
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete saving");
+    }
   };
 
   return (
-    <SavingsContext.Provider value={value}>{children}</SavingsContext.Provider>
+    <SavingsContext.Provider
+      value={{
+        jars,
+        selectedJarId,
+        selectedJar,
+        description,
+        setDescription,
+        amount,
+        setAmount,
+        addSaving,
+        deleteSaving,
+        addJar,
+        deleteJar,
+        selectJar,
+        updateJarGoal,
+      }}
+    >
+      {children}
+    </SavingsContext.Provider>
   );
 };
 
