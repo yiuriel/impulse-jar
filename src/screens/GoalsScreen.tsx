@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { SavingsGoal } from "../components/SavingsGoal";
 import { useSavings } from "../context/SavingsContext";
+import { useTheme } from "../context/ThemeContext";
 
 export const GoalsScreen = () => {
   const {
@@ -18,10 +19,12 @@ export const GoalsScreen = () => {
     progress,
   } = useSavings();
 
+  const { colors } = useTheme();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView
         style={styles.mainScrollView}
@@ -44,13 +47,12 @@ export const GoalsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
   },
   mainScrollView: {
     flex: 1,
   },
   scrollViewContent: {
-    paddingTop: Platform.OS === "ios" ? 60 : 30,
+    paddingTop: Platform.OS === "ios" ? 16 : 16,
     paddingBottom: 20,
     paddingHorizontal: 16,
   },

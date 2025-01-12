@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { styles as sharedStyles } from "../styles/shared";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { useTheme } from "../context/ThemeContext";
 
 interface SavingsGoalProps {
   goalAmount: string;
@@ -21,6 +22,7 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
   progress,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const { colors } = useTheme();
 
   const handleEditPress = () => {
     setIsEditing(true);
@@ -32,15 +34,15 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
   };
 
   return (
-    <View style={[styles.container, sharedStyles.card]}>
+    <View style={[styles.container, sharedStyles.card, { backgroundColor: colors.card }]}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Savings Goal</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Savings Goal</Text>
         {hasGoal && !isEditing && (
           <TouchableOpacity
             onPress={handleEditPress}
             style={styles.editButton}
           >
-            <FontAwesome6 name="pencil" size={16} color="#2E7D32" />
+            <FontAwesome6 name="pencil" size={16} color={colors.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -48,37 +50,44 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
       {(isEditing || !hasGoal) ? (
         <View>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { 
+              color: colors.text,
+              backgroundColor: colors.background,
+              borderColor: colors.border
+            }]}
             placeholder="Enter your savings goal"
-            placeholderTextColor="#9E9E9E"
+            placeholderTextColor={colors.textSecondary}
             value={goalAmount}
             onChangeText={onGoalAmountChange}
             keyboardType="decimal-pad"
           />
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, { backgroundColor: colors.primary }]}
             activeOpacity={0.8}
             onPress={handleSavePress}
           >
-            <Text style={styles.buttonText}>
+            <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
               {hasGoal ? "Update Goal" : "Set Goal"}
             </Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
+          <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
             <View
               style={[
                 styles.progressFill,
-                { width: `${Math.floor(progress)}%` },
+                { 
+                  width: `${Math.floor(progress)}%`,
+                  backgroundColor: colors.primary
+                },
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, { color: colors.text }]}>
             ${currentAmount.toFixed(2)} of ${parseFloat(goalAmount).toFixed(2)}
           </Text>
-          <Text style={styles.progressPercentage}>
+          <Text style={[styles.progressPercentage, { color: colors.textSecondary }]}>
             {progress.toFixed(1)}% Complete
           </Text>
         </View>
@@ -99,55 +108,49 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
-    color: "#212121",
   },
   editButton: {
     padding: 8,
   },
   input: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    height: 48,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
     fontSize: 16,
-    color: "#212121",
   },
   button: {
-    ...sharedStyles.card,
-    backgroundColor: "#2E7D32",
-    borderRadius: 12,
-    padding: 16,
+    height: 48,
+    borderRadius: 8,
+    justifyContent: "center",
     alignItems: "center",
   },
   buttonText: {
-    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
   progressContainer: {
-    alignItems: "center",
+    marginTop: 8,
   },
   progressBar: {
-    width: "100%",
-    height: 12,
-    backgroundColor: "#E8F5E9",
-    borderRadius: 6,
+    height: 8,
+    borderRadius: 4,
+    marginBottom: 12,
     overflow: "hidden",
-    marginBottom: 8,
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#2E7D32",
+    borderRadius: 4,
   },
   progressText: {
-    fontSize: 16,
-    color: "#212121",
+    fontSize: 24,
+    fontWeight: "600",
     marginBottom: 4,
   },
   progressPercentage: {
     fontSize: 14,
-    color: "#616161",
   },
 });

@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { styles as sharedStyles } from "../styles/shared";
+import { useTheme } from "../context/ThemeContext";
 
 interface SavingFormProps {
   description: string;
@@ -23,37 +18,47 @@ export const SavingForm: React.FC<SavingFormProps> = ({
   onAmountChange,
   onSubmit,
 }) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={[styles.card, sharedStyles.card]}>
+    <View style={[styles.container, sharedStyles.card, { backgroundColor: colors.card }]}>
       <Text style={styles.cardTitle}>Add New Saving</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { 
+          color: colors.text,
+          backgroundColor: colors.background,
+          borderColor: colors.border
+        }]}
         placeholder="What did you resist buying?"
-        placeholderTextColor="#9E9E9E"
+        placeholderTextColor={colors.textSecondary}
         value={description}
         onChangeText={onDescriptionChange}
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { 
+          color: colors.text,
+          backgroundColor: colors.background,
+          borderColor: colors.border
+        }]}
         placeholder="How much did it cost?"
-        placeholderTextColor="#9E9E9E"
+        placeholderTextColor={colors.textSecondary}
         value={amount}
         onChangeText={onAmountChange}
         keyboardType="decimal-pad"
       />
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: colors.primary }]}
         activeOpacity={0.8}
         onPress={onSubmit}
       >
-        <Text style={styles.buttonText}>Save to Jar</Text>
+        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>Save to Jar</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
+  container: {
     padding: 20,
     marginBottom: 24,
   },
@@ -64,23 +69,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    height: 48,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
     fontSize: 16,
-    color: "#212121",
   },
   button: {
-    ...sharedStyles.card,
-    backgroundColor: "#2E7D32",
-    borderRadius: 12,
-    padding: 16,
+    height: 48,
+    borderRadius: 8,
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: 8,
   },
   buttonText: {
-    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },

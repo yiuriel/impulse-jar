@@ -4,11 +4,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollViewBase,
 } from "react-native";
 import { JarDisplay } from "../components/JarDisplay";
 import { SavingForm } from "../components/SavingForm";
 import { SavingsList } from "../components/SavingsList";
 import { useSavings } from "../context/SavingsContext";
+import { useTheme } from "../context/ThemeContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export const HomeScreen = () => {
   const {
@@ -23,10 +26,12 @@ export const HomeScreen = () => {
     progress,
   } = useSavings();
 
+  const { colors } = useTheme();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
     >
       <ScrollView
@@ -34,9 +39,9 @@ export const HomeScreen = () => {
         contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled"
       >
-        <JarDisplay 
-          totalSaved={totalSaved} 
-          goalAmount={savingsGoal?.amount} 
+        <JarDisplay
+          totalSaved={totalSaved}
+          goalAmount={savingsGoal?.amount}
           progress={progress}
         />
 
@@ -57,13 +62,12 @@ export const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
   },
   mainScrollView: {
     flex: 1,
   },
   scrollViewContent: {
-    paddingTop: Platform.OS === "ios" ? 60 : 30,
+    paddingTop: Platform.OS === "ios" ? 16 : 16,
     paddingBottom: 20,
     paddingHorizontal: 16,
   },

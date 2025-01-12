@@ -14,6 +14,7 @@ interface SavingsContextType {
   savings: SavingItem[];
   totalSaved: number;
   addSaving: () => Promise<void>;
+  deleteSaving: (id: string) => Promise<void>;
   goalAmount: string;
   setGoalAmount: (value: string) => void;
   savingsGoal: SavingsGoal | null;
@@ -100,6 +101,18 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  const deleteSaving = async (id: string) => {
+    try {
+      const updatedSavings = savings.filter(item => item.id !== id);
+      await AsyncStorage.setItem(SAVINGS_KEY, JSON.stringify(updatedSavings));
+      setSavings(updatedSavings);
+      calculateTotal(updatedSavings);
+      Alert.alert("Success", "Item deleted successfully");
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete item");
+    }
+  };
+
   const setGoal = async () => {
     if (!goalAmount) {
       Alert.alert("Error", "Please enter a goal amount");
@@ -133,6 +146,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({ children })
     savings,
     totalSaved,
     addSaving,
+    deleteSaving,
     goalAmount,
     setGoalAmount,
     savingsGoal,

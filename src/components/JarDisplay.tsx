@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { View, Text, StyleSheet, DimensionValue } from "react-native";
 import { styles as sharedStyles } from "../styles/shared";
+import { FontAwesome6 } from "@expo/vector-icons";
+import { useTheme } from "../context/ThemeContext";
 
 interface JarDisplayProps {
   totalSaved: number;
@@ -14,73 +15,114 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
   goalAmount,
   progress,
 }) => {
+  const { colors } = useTheme();
+
+  const getJarFillHeight = (): DimensionValue => {
+    if (!goalAmount) return "30%";
+    const percentage = Math.min((totalSaved / goalAmount) * 100, 100);
+    return `${Math.max(percentage, 5)}%`;
+  };
+
   return (
-    <View style={styles.jarContainer}>
-      <View style={styles.jarIconContainer}>
-        {goalAmount && goalAmount > 0 && (
+    <View
+      style={[
+        styles.container,
+        sharedStyles.card,
+        { backgroundColor: colors.card },
+      ]}
+    >
+      <View style={styles.jarContainer}>
+        <View style={[styles.jar, { borderColor: colors.primary }]}>
           <View
             style={[
               styles.jarFill,
               {
-                height: `${Math.floor(progress)}%`,
-                backgroundColor: "#E8F5E9",
+                height: getJarFillHeight(),
+                backgroundColor: colors.primary,
+                opacity: 0.3,
               },
             ]}
           />
-        )}
-        <FontAwesome6
-          style={styles.jarIcon}
-          name="jar"
-          size={80}
-          color="#2E7D32"
-        />
+        </View>
+        <View style={styles.iconContainer}>
+          <FontAwesome6
+            name="jar"
+            size={100}
+            color={colors.primary}
+          />
+        </View>
       </View>
-      <View style={styles.savingsContainer}>
-        <Text style={styles.totalAmount}>${totalSaved.toFixed(2)}</Text>
-        <Text style={styles.savedText}>Total Savings</Text>
+      <View style={styles.infoContainer}>
+        <Text style={[styles.amount, { color: colors.text }]}>
+          ${totalSaved.toFixed(2)}
+        </Text>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>
+          Total Saved
+        </Text>
+        {goalAmount && (
+          <Text style={[styles.goal, { color: colors.textSecondary }]}>
+            Goal: ${goalAmount.toFixed(2)} ({progress.toFixed(1)}%)
+          </Text>
+        )}
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  jarContainer: {
-    alignItems: "center",
+  container: {
+    padding: 20,
     marginBottom: 24,
+    alignItems: "center",
   },
-  jarIconContainer: {
-    ...sharedStyles.card,
+  jarContainer: {
     width: 120,
     height: 120,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 60,
-    alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 16,
     overflow: "hidden",
     position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "100%",
+  },
+  jar: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    borderWidth: 3,
+    borderRadius: "100%",
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
   },
   jarFill: {
     position: "absolute",
     bottom: 0,
     width: "100%",
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  iconContainer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 1,
   },
-  jarIcon: {
-    zIndex: 2,
-  },
-  savingsContainer: {
+  infoContainer: {
     alignItems: "center",
-    marginTop: 16,
   },
-  totalAmount: {
-    fontSize: 42,
+  amount: {
+    fontSize: 32,
     fontWeight: "bold",
-    color: "#2E7D32",
     marginBottom: 4,
   },
-  savedText: {
-    fontSize: 18,
-    color: "#616161",
-    fontWeight: "500",
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  goal: {
+    fontSize: 14,
   },
 });

@@ -1,68 +1,136 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { SavingItem } from "../types";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { styles as sharedStyles } from "../styles/shared";
+import { SavingItem } from "../types";
+import { useTheme } from "../context/ThemeContext";
+import { useSavings } from "../context/SavingsContext";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 interface SavingsListProps {
   savings: SavingItem[];
 }
 
 export const SavingsList: React.FC<SavingsListProps> = ({ savings }) => {
+  const { colors } = useTheme();
+  const { deleteSaving } = useSavings();
+
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Delete Saving",
+      "Are you sure you want to delete this saving?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteSaving(id),
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
+  const renderSavingItem = (item: SavingItem) => (
+    <View
+      key={item.id}
+      style={[
+        styles.item,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+    >
+      <View style={styles.itemContent}>
+        <Text style={[styles.description, { color: colors.text }]}>
+          {item.description}
+        </Text>
+        <Text style={[styles.date, { color: colors.textSecondary }]}>
+          {new Date(item.date).toLocaleDateString()}
+        </Text>
+      </View>
+      <View style={styles.rightContent}>
+        <Text style={[styles.amount, { color: colors.primary }]}>
+          ${item.amount.toFixed(2)}
+        </Text>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDelete(item.id)}
+        >
+          <FontAwesome6 
+            name="trash-can" 
+            size={16} 
+            color={colors.textSecondary}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
-    <View style={[styles.historyContainer, sharedStyles.card]}>
-      <Text style={styles.historyTitle}>Savings History</Text>
-      {savings
-        .slice()
-        .reverse()
-        .map((item) => (
-          <View key={item.id} style={styles.historyItem}>
-            <View style={styles.historyContent}>
-              <Text style={styles.historyDescription}>{item.description}</Text>
-              <Text style={styles.historyDate}>
-                {new Date(item.date).toLocaleDateString()}
-              </Text>
-            </View>
-            <Text style={styles.historyAmount}>${item.amount.toFixed(2)}</Text>
-          </View>
-        ))}
+    <View style={styles.container}>
+      <Text style={[styles.title, { color: colors.text }]}>
+        Savings History
+      </Text>
+      <View style={styles.listContainer}>
+        {savings.length === 0 ? (
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            No savings yet. Start saving today!
+          </Text>
+        ) : (
+          savings.slice().reverse().map(renderSavingItem)
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  historyContainer: {
-    padding: 20,
+  container: {
+    flex: 1,
   },
-  historyTitle: {
-    fontSize: 20,
+  listContainer: {
+    paddingTop: 8,
+  },
+  title: {
+    fontSize: 18,
     fontWeight: "600",
-    color: "#212121",
     marginBottom: 16,
   },
-  historyItem: {
+  item: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
   },
-  historyContent: {
+  itemContent: {
     flex: 1,
-    marginRight: 12,
+    marginRight: 16,
   },
-  historyDescription: {
+  rightContent: {
+    alignItems: "flex-end",
+  },
+  description: {
     fontSize: 16,
-    color: "#212121",
+    fontWeight: "500",
     marginBottom: 4,
   },
-  historyDate: {
+  date: {
     fontSize: 14,
-    color: "#9E9E9E",
   },
-  historyAmount: {
+  amount: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2E7D32",
+    marginBottom: 8,
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    marginTop: 24,
   },
 });
