@@ -1,5 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type ThemeMode = "light" | "dark";
 type ColorScheme = "green" | "blue" | "purple" | "orange";
@@ -74,7 +80,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const THEME_MODE_KEY = "@theme_mode";
 const COLOR_SCHEME_KEY = "@color_scheme";
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [mode, setMode] = useState<ThemeMode>("light");
   const [colorScheme, setColorScheme] = useState<ColorScheme>("green");
 
@@ -116,9 +124,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const baseColors = themeColorSchemes[colorScheme];
-  const colors = mode === "dark" 
-    ? { ...baseColors, ...darkThemeOverrides }
-    : baseColors;
+  const colors =
+    mode === "dark" ? { ...baseColors, ...darkThemeOverrides } : baseColors;
 
   const value = {
     mode,
@@ -129,9 +136,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 

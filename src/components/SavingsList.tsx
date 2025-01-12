@@ -1,10 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { styles as sharedStyles } from "../styles/shared";
-import { SavingItem } from "../types";
-import { useTheme } from "../context/ThemeContext";
-import { useSavings } from "../context/SavingsContext";
 import { FontAwesome6 } from "@expo/vector-icons";
+import React from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSavings } from "../context/SavingsContext";
+import { useTheme } from "../context/ThemeContext";
+import { SavingItem } from "../types";
 
 interface SavingsListProps {
   savings: SavingItem[];
@@ -56,9 +55,9 @@ export const SavingsList: React.FC<SavingsListProps> = ({ savings }) => {
           style={styles.deleteButton}
           onPress={() => handleDelete(item.id)}
         >
-          <FontAwesome6 
-            name="trash-can" 
-            size={16} 
+          <FontAwesome6
+            name="trash-can"
+            size={16}
             color={colors.textSecondary}
           />
         </TouchableOpacity>

@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, StyleSheet, DimensionValue } from "react-native";
-import { styles as sharedStyles } from "../styles/shared";
 import { FontAwesome6 } from "@expo/vector-icons";
+import React from "react";
+import { DimensionValue, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { styles as sharedStyles } from "../styles/shared";
 
 interface JarDisplayProps {
   totalSaved: number;
@@ -45,11 +45,7 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
           />
         </View>
         <View style={styles.iconContainer}>
-          <FontAwesome6
-            name="jar"
-            size={100}
-            color={colors.primary}
-          />
+          <FontAwesome6 name="jar" size={100} color={colors.primary} />
         </View>
       </View>
       <View style={styles.infoContainer}>

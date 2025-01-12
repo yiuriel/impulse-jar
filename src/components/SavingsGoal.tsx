@@ -1,8 +1,14 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { styles as sharedStyles } from "../styles/shared";
 import { FontAwesome6 } from "@expo/vector-icons";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { styles as sharedStyles } from "../styles/shared";
 
 interface SavingsGoalProps {
   goalAmount: string;
@@ -34,27 +40,33 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
   };
 
   return (
-    <View style={[styles.container, sharedStyles.card, { backgroundColor: colors.card }]}>
+    <View
+      style={[
+        styles.container,
+        sharedStyles.card,
+        { backgroundColor: colors.card },
+      ]}
+    >
       <View style={styles.headerContainer}>
         <Text style={[styles.title, { color: colors.text }]}>Savings Goal</Text>
         {hasGoal && !isEditing && (
-          <TouchableOpacity
-            onPress={handleEditPress}
-            style={styles.editButton}
-          >
+          <TouchableOpacity onPress={handleEditPress} style={styles.editButton}>
             <FontAwesome6 name="pencil" size={16} color={colors.primary} />
           </TouchableOpacity>
         )}
       </View>
 
-      {(isEditing || !hasGoal) ? (
+      {isEditing || !hasGoal ? (
         <View>
           <TextInput
-            style={[styles.input, { 
-              color: colors.text,
-              backgroundColor: colors.background,
-              borderColor: colors.border
-            }]}
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+              },
+            ]}
             placeholder="Enter your savings goal"
             placeholderTextColor={colors.textSecondary}
             value={goalAmount}
@@ -73,13 +85,15 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
         </View>
       ) : (
         <View style={styles.progressContainer}>
-          <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+          <View
+            style={[styles.progressBar, { backgroundColor: colors.border }]}
+          >
             <View
               style={[
                 styles.progressFill,
-                { 
+                {
                   width: `${Math.floor(progress)}%`,
-                  backgroundColor: colors.primary
+                  backgroundColor: colors.primary,
                 },
               ]}
             />
@@ -87,7 +101,9 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
           <Text style={[styles.progressText, { color: colors.text }]}>
             ${currentAmount.toFixed(2)} of ${parseFloat(goalAmount).toFixed(2)}
           </Text>
-          <Text style={[styles.progressPercentage, { color: colors.textSecondary }]}>
+          <Text
+            style={[styles.progressPercentage, { color: colors.textSecondary }]}
+          >
             {progress.toFixed(1)}% Complete
           </Text>
         </View>

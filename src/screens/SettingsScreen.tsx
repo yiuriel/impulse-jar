@@ -1,13 +1,13 @@
+import { FontAwesome6 } from "@expo/vector-icons";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { FontAwesome6 } from "@expo/vector-icons";
 
 export const SettingsScreen = () => {
   const { mode, colorScheme, colors, toggleTheme, setColorScheme } = useTheme();
@@ -69,7 +69,9 @@ export const SettingsScreen = () => {
             <FontAwesome6
               name={icon}
               size={20}
-              color={colorScheme === name ? colors.primary : colors.textSecondary}
+              color={
+                colorScheme === name ? colors.primary : colors.textSecondary
+              }
             />
           </TouchableOpacity>
         ))}

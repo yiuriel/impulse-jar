@@ -1,7 +1,13 @@
 import React from "react";
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
-import { styles as sharedStyles } from "../styles/shared";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { styles as sharedStyles } from "../styles/shared";
 
 interface SavingFormProps {
   description: string;
@@ -21,25 +27,37 @@ export const SavingForm: React.FC<SavingFormProps> = ({
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.container, sharedStyles.card, { backgroundColor: colors.card }]}>
+    <View
+      style={[
+        styles.container,
+        sharedStyles.card,
+        { backgroundColor: colors.card },
+      ]}
+    >
       <Text style={styles.cardTitle}>Add New Saving</Text>
       <TextInput
-        style={[styles.input, { 
-          color: colors.text,
-          backgroundColor: colors.background,
-          borderColor: colors.border
-        }]}
+        style={[
+          styles.input,
+          {
+            color: colors.text,
+            backgroundColor: colors.background,
+            borderColor: colors.border,
+          },
+        ]}
         placeholder="What did you resist buying?"
         placeholderTextColor={colors.textSecondary}
         value={description}
         onChangeText={onDescriptionChange}
       />
       <TextInput
-        style={[styles.input, { 
-          color: colors.text,
-          backgroundColor: colors.background,
-          borderColor: colors.border
-        }]}
+        style={[
+          styles.input,
+          {
+            color: colors.text,
+            backgroundColor: colors.background,
+            borderColor: colors.border,
+          },
+        ]}
         placeholder="How much did it cost?"
         placeholderTextColor={colors.textSecondary}
         value={amount}
@@ -51,7 +69,9 @@ export const SavingForm: React.FC<SavingFormProps> = ({
         activeOpacity={0.8}
         onPress={onSubmit}
       >
-        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>Save to Jar</Text>
+        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
+          Save to Jar
+        </Text>
       </TouchableOpacity>
     </View>
   );

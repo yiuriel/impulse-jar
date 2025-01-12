@@ -1,9 +1,9 @@
 import React from "react";
 import {
-  StyleSheet,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 import { SavingsGoal } from "../components/SavingsGoal";
 import { useSavings } from "../context/SavingsContext";

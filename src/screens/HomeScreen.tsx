@@ -1,17 +1,15 @@
 import React from "react";
 import {
-  StyleSheet,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ScrollViewBase,
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 import { JarDisplay } from "../components/JarDisplay";
 import { SavingForm } from "../components/SavingForm";
 import { SavingsList } from "../components/SavingsList";
 import { useSavings } from "../context/SavingsContext";
 import { useTheme } from "../context/ThemeContext";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export const HomeScreen = () => {
   const {

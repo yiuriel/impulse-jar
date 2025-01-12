@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SavingItem, SavingsGoal } from "../types";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Alert } from "react-native";
+import { SavingItem, SavingsGoal } from "../types";
 
 const SAVINGS_KEY = "@savings";
 const GOAL_KEY = "@savings_goal";
@@ -24,7 +30,9 @@ interface SavingsContextType {
 
 const SavingsContext = createContext<SavingsContextType | undefined>(undefined);
 
-export const SavingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const SavingsProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [savings, setSavings] = useState<SavingItem[]>([]);
@@ -103,7 +111,7 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const deleteSaving = async (id: string) => {
     try {
-      const updatedSavings = savings.filter(item => item.id !== id);
+      const updatedSavings = savings.filter((item) => item.id !== id);
       await AsyncStorage.setItem(SAVINGS_KEY, JSON.stringify(updatedSavings));
       setSavings(updatedSavings);
       calculateTotal(updatedSavings);
@@ -154,7 +162,9 @@ export const SavingsProvider: React.FC<{ children: ReactNode }> = ({ children })
     progress,
   };
 
-  return <SavingsContext.Provider value={value}>{children}</SavingsContext.Provider>;
+  return (
+    <SavingsContext.Provider value={value}>{children}</SavingsContext.Provider>
+  );
 };
 
 export const useSavings = () => {
