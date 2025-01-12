@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  DimensionValue,
 } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
@@ -28,8 +29,12 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
   const { selectedJar, updateJar } = useSavings();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(selectedJar?.name || "");
-  const [editDescription, setEditDescription] = useState(selectedJar?.description || "");
-  const [editGoalAmount, setEditGoalAmount] = useState(goalAmount ? goalAmount.toString() : "");
+  const [editDescription, setEditDescription] = useState(
+    selectedJar?.description || ""
+  );
+  const [editGoalAmount, setEditGoalAmount] = useState(
+    goalAmount ? goalAmount.toString() : ""
+  );
 
   const handleEditPress = () => {
     setEditName(selectedJar?.name || "");
@@ -64,6 +69,12 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
     setIsEditing(false);
   };
 
+  const getJarFillHeight = (): DimensionValue => {
+    if (!goalAmount) return "30%";
+    const percentage = Math.min((totalSaved / goalAmount) * 100, 100);
+    return `${Math.max(percentage, 5)}%`;
+  };
+
   if (!selectedJar) return null;
 
   return (
@@ -80,9 +91,7 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
             {selectedJar.name}
           </Text>
           {selectedJar.description && (
-            <Text
-              style={[styles.description, { color: colors.textSecondary }]}
-            >
+            <Text style={[styles.description, { color: colors.textSecondary }]}>
               {selectedJar.description}
             </Text>
           )}
@@ -92,7 +101,28 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
         </TouchableOpacity>
       </View>
 
-      <View style={styles.amountContainer}>
+      <View style={styles.jarContainer}>
+        <View style={[styles.jar, { borderColor: colors.primary }]}>
+          <View
+            style={[
+              styles.jarFill,
+              {
+                height: getJarFillHeight(),
+                backgroundColor: colors.primary,
+                opacity: Math.min(
+                  Math.max(0.1 + (totalSaved / goalAmount) * 0.4, 0.1),
+                  0.5
+                ),
+              },
+            ]}
+          />
+        </View>
+        <View style={styles.iconContainer}>
+          <FontAwesome6 name="jar" size={100} color={colors.primary} />
+        </View>
+      </View>
+
+      <View style={styles.infoContainer}>
         <Text style={[styles.amount, { color: colors.primary }]}>
           ${totalSaved.toFixed(2)}
         </Text>
@@ -101,30 +131,10 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
             / ${goalAmount.toFixed(2)}
           </Text>
         )}
+        <Text style={[styles.progressText, { color: colors.textSecondary }]}>
+          {goalAmount > 0 ? `${Math.floor(progress)}% of goal` : "No goal set"}
+        </Text>
       </View>
-
-      {goalAmount > 0 && (
-        <View style={styles.progressContainer}>
-          <View
-            style={[styles.progressBar, { backgroundColor: colors.border }]}
-          >
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${Math.min(progress, 100)}%`,
-                  backgroundColor: colors.primary,
-                },
-              ]}
-            />
-          </View>
-          <Text
-            style={[styles.progressText, { color: colors.textSecondary }]}
-          >
-            {Math.floor(progress)}% of goal
-          </Text>
-        </View>
-      )}
 
       <Modal
         visible={isEditing}
@@ -177,7 +187,10 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
                 <Text style={{ color: colors.text }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: colors.primary }]}
+                style={[
+                  styles.modalButton,
+                  { backgroundColor: colors.primary },
+                ]}
                 onPress={handleSave}
               >
                 <Text style={{ color: "white" }}>Save</Text>
@@ -212,11 +225,41 @@ const styles = StyleSheet.create({
   editButton: {
     padding: 8,
   },
-  amountContainer: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    justifyContent: "center",
+  jarContainer: {
+    width: 120,
+    height: 120,
     marginBottom: 16,
+    overflow: "hidden",
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+  },
+  jar: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    borderWidth: 3,
+    borderRadius: 60,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  jarFill: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+  },
+  iconContainer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+  },
+  infoContainer: {
+    alignItems: "center",
   },
   amount: {
     fontSize: 32,
@@ -226,22 +269,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 4,
   },
-  progressContainer: {
-    marginTop: 8,
-  },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 8,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
   progressText: {
     fontSize: 14,
-    textAlign: "center",
+    marginTop: 4,
   },
   modalContainer: {
     flex: 1,
