@@ -6,7 +6,7 @@ import {
   Platform,
 } from "react-native";
 import { SavingsGoal } from "../components/SavingsGoal";
-import { useSavings } from "../hooks/useSavings";
+import { useSavings } from "../context/SavingsContext";
 
 export const GoalsScreen = () => {
   const {
@@ -15,6 +15,7 @@ export const GoalsScreen = () => {
     savingsGoal,
     setGoal,
     totalSaved,
+    progress,
   } = useSavings();
 
   return (
@@ -33,6 +34,7 @@ export const GoalsScreen = () => {
           onSetGoal={setGoal}
           currentAmount={totalSaved}
           hasGoal={!!savingsGoal}
+          progress={progress}
         />
       </ScrollView>
     </KeyboardAvoidingView>

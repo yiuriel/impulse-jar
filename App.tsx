@@ -15,72 +15,60 @@ import { JarDisplay } from "./src/components/JarDisplay";
 import { SavingForm } from "./src/components/SavingForm";
 import { SavingsList } from "./src/components/SavingsList";
 import { SavingsGoal } from "./src/components/SavingsGoal";
-import { useSavings } from "./src/hooks/useSavings";
+import { SavingsProvider } from "./src/context/SavingsContext";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { GoalsScreen } from "./src/screens/GoalsScreen";
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const {
-    description,
-    setDescription,
-    amount,
-    setAmount,
-    savings,
-    totalSaved,
-    addSaving,
-    goalAmount,
-    setGoalAmount,
-    savingsGoal,
-    setGoal,
-  } = useSavings();
-
   return (
-    <NavigationContainer>
-      <StatusBar style="dark" />
-      <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: "#2E7D32",
-          tabBarInactiveTintColor: "#9E9E9E",
-          tabBarStyle: {
-            backgroundColor: "#FFFFFF",
-            borderTopWidth: 1,
-            borderTopColor: "#F5F5F5",
-            paddingBottom: 5,
-            paddingTop: 5,
-          },
-          headerStyle: {
-            backgroundColor: "#FFFFFF",
-          },
-          headerTitleStyle: {
-            color: "#212121",
-            fontSize: 18,
-          },
-        }}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <FontAwesome6 name="jar" size={size} color={color} />
-            ),
-            title: "Savings Jar",
+    <SavingsProvider>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <Tab.Navigator
+          screenOptions={{
+            tabBarActiveTintColor: "#2E7D32",
+            tabBarInactiveTintColor: "#9E9E9E",
+            tabBarStyle: {
+              backgroundColor: "#FFFFFF",
+              borderTopWidth: 1,
+              borderTopColor: "#F5F5F5",
+              paddingBottom: 5,
+              paddingTop: 5,
+            },
+            headerStyle: {
+              backgroundColor: "#FFFFFF",
+            },
+            headerTitleStyle: {
+              color: "#212121",
+              fontSize: 18,
+            },
           }}
-        />
-        <Tab.Screen
-          name="Goals"
-          component={GoalsScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <FontAwesome6 name="bullseye" size={size} color={color} />
-            ),
-            title: "Savings Goals",
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+        >
+          <Tab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome6 name="jar" size={size} color={color} />
+              ),
+              title: "Savings Jar",
+            }}
+          />
+          <Tab.Screen
+            name="Goals"
+            component={GoalsScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <FontAwesome6 name="bullseye" size={size} color={color} />
+              ),
+              title: "Savings Goals",
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SavingsProvider>
   );
 }
 

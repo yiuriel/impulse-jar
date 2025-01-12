@@ -1,12 +1,7 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { styles as sharedStyles } from "../styles/shared";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 interface SavingsGoalProps {
   goalAmount: string;
@@ -14,6 +9,7 @@ interface SavingsGoalProps {
   onSetGoal: () => void;
   currentAmount: number;
   hasGoal: boolean;
+  progress: number;
 }
 
 export const SavingsGoal: React.FC<SavingsGoalProps> = ({
@@ -22,34 +18,34 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
   onSetGoal,
   currentAmount,
   hasGoal,
+  progress,
 }) => {
-  const getProgressPercentage = () => {
-    if (!hasGoal || parseFloat(goalAmount) <= 0) return 0;
-    const progress = (currentAmount / parseFloat(goalAmount)) * 100;
-    return Math.min(progress, 100);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleEditPress = () => {
+    setIsEditing(true);
+  };
+
+  const handleSavePress = () => {
+    setIsEditing(false);
+    onSetGoal();
   };
 
   return (
     <View style={[styles.container, sharedStyles.card]}>
-      <Text style={styles.title}>Savings Goal</Text>
-      {hasGoal ? (
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${Math.floor(getProgressPercentage())}%` },
-              ]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {/* ${currentAmount.toFixed(2)} of ${parseFloat(goalAmount).toFixed(2)} */}
-          </Text>
-          <Text style={styles.progressPercentage}>
-            {getProgressPercentage().toFixed(1)}% Complete
-          </Text>
-        </View>
-      ) : (
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Savings Goal</Text>
+        {hasGoal && !isEditing && (
+          <TouchableOpacity
+            onPress={handleEditPress}
+            style={styles.editButton}
+          >
+            <FontAwesome6 name="pencil" size={16} color="#2E7D32" />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {(isEditing || !hasGoal) ? (
         <View>
           <TextInput
             style={styles.input}
@@ -62,10 +58,29 @@ export const SavingsGoal: React.FC<SavingsGoalProps> = ({
           <TouchableOpacity
             style={styles.button}
             activeOpacity={0.8}
-            onPress={onSetGoal}
+            onPress={handleSavePress}
           >
-            <Text style={styles.buttonText}>Set Goal</Text>
+            <Text style={styles.buttonText}>
+              {hasGoal ? "Update Goal" : "Set Goal"}
+            </Text>
           </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${Math.floor(progress)}%` },
+              ]}
+            />
+          </View>
+          <Text style={styles.progressText}>
+            ${currentAmount.toFixed(2)} of ${parseFloat(goalAmount).toFixed(2)}
+          </Text>
+          <Text style={styles.progressPercentage}>
+            {progress.toFixed(1)}% Complete
+          </Text>
         </View>
       )}
     </View>
@@ -77,11 +92,19 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 24,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
   title: {
     fontSize: 20,
     fontWeight: "600",
     color: "#212121",
-    marginBottom: 16,
+  },
+  editButton: {
+    padding: 8,
   },
   input: {
     backgroundColor: "#F5F5F5",

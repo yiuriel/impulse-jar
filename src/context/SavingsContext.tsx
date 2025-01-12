@@ -1,26 +1,46 @@
-import { useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SavingItem, SavingsGoal } from "../types";
 import { Alert } from "react-native";
 
-export const useSavings = () => {
+const SAVINGS_KEY = "@savings";
+const GOAL_KEY = "@savings_goal";
+
+interface SavingsContextType {
+  description: string;
+  setDescription: (value: string) => void;
+  amount: string;
+  setAmount: (value: string) => void;
+  savings: SavingItem[];
+  totalSaved: number;
+  addSaving: () => Promise<void>;
+  goalAmount: string;
+  setGoalAmount: (value: string) => void;
+  savingsGoal: SavingsGoal | null;
+  setGoal: () => Promise<void>;
+  progress: number;
+}
+
+const SavingsContext = createContext<SavingsContextType | undefined>(undefined);
+
+export const SavingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [savings, setSavings] = useState<SavingItem[]>([]);
-  const [totalSaved, setTotalSaved] = useState(0);
   const [goalAmount, setGoalAmount] = useState("");
   const [savingsGoal, setSavingsGoal] = useState<SavingsGoal | null>(null);
+  const [totalSaved, setTotalSaved] = useState(0);
 
   useEffect(() => {
     loadSavings();
-    loadSavingsGoal();
+    loadGoal();
   }, []);
 
   const loadSavings = async () => {
     try {
-      const savedData = await AsyncStorage.getItem("savings");
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
+      const savedSavings = await AsyncStorage.getItem(SAVINGS_KEY);
+      if (savedSavings) {
+        const parsedData = JSON.parse(savedSavings);
         setSavings(parsedData);
         calculateTotal(parsedData);
       }
@@ -29,11 +49,11 @@ export const useSavings = () => {
     }
   };
 
-  const loadSavingsGoal = async () => {
+  const loadGoal = async () => {
     try {
-      const goalData = await AsyncStorage.getItem("savingsGoal");
-      if (goalData) {
-        const parsedGoal = JSON.parse(goalData);
+      const savedGoal = await AsyncStorage.getItem(GOAL_KEY);
+      if (savedGoal) {
+        const parsedGoal = JSON.parse(savedGoal);
         setSavingsGoal(parsedGoal);
         setGoalAmount(parsedGoal.amount.toString());
       }
@@ -47,9 +67,9 @@ export const useSavings = () => {
     setTotalSaved(total);
   };
 
-  const addSaving = async () => {
-    console.log(description, amount);
+  const progress = savingsGoal ? (totalSaved / savingsGoal.amount) * 100 : 0;
 
+  const addSaving = async () => {
     if (!description || !amount) {
       Alert.alert("Error", "Please fill in both fields");
       return;
@@ -70,7 +90,7 @@ export const useSavings = () => {
 
     const updatedSavings = [...savings, newItem];
     try {
-      await AsyncStorage.setItem("savings", JSON.stringify(updatedSavings));
+      await AsyncStorage.setItem(SAVINGS_KEY, JSON.stringify(updatedSavings));
       setSavings(updatedSavings);
       calculateTotal(updatedSavings);
       setDescription("");
@@ -98,14 +118,14 @@ export const useSavings = () => {
     };
 
     try {
-      await AsyncStorage.setItem("savingsGoal", JSON.stringify(goal));
+      await AsyncStorage.setItem(GOAL_KEY, JSON.stringify(goal));
       setSavingsGoal(goal);
     } catch (error) {
       Alert.alert("Error", "Failed to save goal");
     }
   };
 
-  return {
+  const value = {
     description,
     setDescription,
     amount,
@@ -117,5 +137,16 @@ export const useSavings = () => {
     setGoalAmount,
     savingsGoal,
     setGoal,
+    progress,
   };
+
+  return <SavingsContext.Provider value={value}>{children}</SavingsContext.Provider>;
+};
+
+export const useSavings = () => {
+  const context = useContext(SavingsContext);
+  if (context === undefined) {
+    throw new Error("useSavings must be used within a SavingsProvider");
+  }
+  return context;
 };

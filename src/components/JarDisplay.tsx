@@ -6,20 +6,14 @@ import { styles as sharedStyles } from "../styles/shared";
 interface JarDisplayProps {
   totalSaved: number;
   goalAmount?: number;
+  progress: number;
 }
 
 export const JarDisplay: React.FC<JarDisplayProps> = ({
   totalSaved,
   goalAmount,
+  progress,
 }) => {
-  const getFillPercentage = () => {
-    if (!goalAmount || goalAmount <= 0) return 0;
-    const percentage = (totalSaved / goalAmount) * 100;
-    return Math.min(percentage, 100);
-  };
-
-  const fillPercentage = getFillPercentage();
-
   return (
     <View style={styles.jarContainer}>
       <View style={styles.jarIconContainer}>
@@ -28,7 +22,7 @@ export const JarDisplay: React.FC<JarDisplayProps> = ({
             style={[
               styles.jarFill,
               {
-                height: `${Math.floor(fillPercentage)}%`,
+                height: `${Math.floor(progress)}%`,
                 backgroundColor: "#E8F5E9",
               },
             ]}

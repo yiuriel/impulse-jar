@@ -8,7 +8,7 @@ import {
 import { JarDisplay } from "../components/JarDisplay";
 import { SavingForm } from "../components/SavingForm";
 import { SavingsList } from "../components/SavingsList";
-import { useSavings } from "../hooks/useSavings";
+import { useSavings } from "../context/SavingsContext";
 
 export const HomeScreen = () => {
   const {
@@ -20,6 +20,7 @@ export const HomeScreen = () => {
     totalSaved,
     addSaving,
     savingsGoal,
+    progress,
   } = useSavings();
 
   return (
@@ -33,7 +34,11 @@ export const HomeScreen = () => {
         contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled"
       >
-        <JarDisplay totalSaved={totalSaved} goalAmount={savingsGoal?.amount} />
+        <JarDisplay 
+          totalSaved={totalSaved} 
+          goalAmount={savingsGoal?.amount} 
+          progress={progress}
+        />
 
         <SavingForm
           description={description}
