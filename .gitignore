@@ -34,3 +34,10 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+ios
+android
+
+# react native
+react-native.log
+yarn.lock
